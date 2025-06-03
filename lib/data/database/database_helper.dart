@@ -42,6 +42,20 @@ class DatabaseHelper {
             expiryDate TEXT
           )
         ''');
+        db.execute('''
+          CREATE TABLE users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT,
+            role TEXT
+          )
+        ''');
+        // Insert default admin
+        db.insert('users', {
+          'username': 'admin',
+          'password': 'admin123',
+          'role': 'admin',
+        });
       },
       onUpgrade: (db, oldVersion, newVersion) {
         if (oldVersion < 2) {
