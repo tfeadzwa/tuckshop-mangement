@@ -4,6 +4,7 @@ import '../../data/database/database_helper.dart';
 import '../../data/models/user.dart';
 import '../dashboard/dashboard_screen.dart';
 import 'registration_screen.dart';
+import '../employees/sales_employee_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -33,10 +34,44 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result.isNotEmpty) {
       final user = User.fromMap(result.first);
       if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => DashboardScreen(userRole: user.role)),
-      );
+      if (user.role == 'admin') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DashboardScreen(userRole: user.role),
+          ),
+        );
+      } else if (user.role == 'employee') {
+        // Fetch employee duty from employees table
+        final empResult = await db.query(
+          'employees',
+          where: 'name = ?',
+          whereArgs: [user.username],
+        );
+        if (empResult.isNotEmpty) {
+          final duty = empResult.first['duty'] as String?;
+          if (duty != null && duty.toLowerCase().contains('sales')) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => SalesEmployeeScreen(employeeUsername: user.username),
+              ),
+            );
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DashboardScreen(userRole: user.role),
+              ),
+            );
+          }
+        } else {
+          setState(() {
+            _error = 'Employee record not found.';
+          });
+        }
+      }
     } else {
       setState(() {
         _error = 'Invalid username or password';

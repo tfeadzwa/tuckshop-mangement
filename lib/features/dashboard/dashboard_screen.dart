@@ -1,6 +1,7 @@
 // Dashboard screen
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../employees/employee_screen.dart';
 import '../stock/stock_screen.dart';
 import '../../data/models/stock.dart';
@@ -87,11 +88,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               child: const Center(
-                child: Icon(
-                  Icons.storefront,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                child: Icon(Icons.storefront, color: Colors.white, size: 28),
               ),
             ),
             const SizedBox(width: 12),
@@ -126,28 +123,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar:
           widget.userRole == 'admin'
               ? BottomNavigationBar(
-                  currentIndex: _currentIndex,
-                  onTap: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  selectedItemColor: Colors.blueAccent,
-                  items: const [
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.dashboard),
-                      label: 'Dashboard',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.person_add),
-                      label: 'Add Employee',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.add_box),
-                      label: 'Add Product',
-                    ),
-                  ],
-                )
+                currentIndex: _currentIndex,
+                onTap: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                selectedItemColor: Colors.blueAccent,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.dashboard),
+                    label: 'Dashboard',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person_add),
+                    label: 'Add Employee',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.add_box),
+                    label: 'Add Product',
+                  ),
+                ],
+              )
               : null,
     );
   }
@@ -159,6 +156,16 @@ class _DashboardMainView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Dummy data for revenue chart
+    final List<FlSpot> revenueData = [
+      FlSpot(1, 1000),
+      FlSpot(2, 1200),
+      FlSpot(3, 900),
+      FlSpot(4, 1500),
+      FlSpot(5, 1700),
+      FlSpot(6, 1400),
+      FlSpot(7, 2000),
+    ];
     final stockProvider = Provider.of<StockProvider>(context);
     return Container(
       width: double.infinity,
@@ -176,77 +183,139 @@ class _DashboardMainView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildStatCard('Product In', stockProvider.stocks.length.toString(), Colors.blue),
-                _buildStatCard('Product Out', stockProvider.stocks.where((stock) => stock.quantity <= 0).length.toString(), Colors.orange),
-              ],
-            ),
-            const SizedBox(height: 32),
-            Expanded(
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      if (userRole == 'admin')
-                        _buildNavigationCard(
-                          context,
-                          'Manage Employees',
-                          Icons.people,
-                          Colors.green,
-                          const EmployeeScreen(),
-                        ),
-                      _buildNavigationCard(
-                        context,
-                        'Manage Stock',
-                        Icons.inventory,
-                        Colors.purple,
-                        const StockScreen(),
+            Card(
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Revenue (This Week)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blueAccent.withOpacity(0.08),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Revenue',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blueAccent,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 120,
-                          child: Center(
-                            child: Text(
-                              'Chart Placeholder',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
+                    SizedBox(
+                      height: 200,
+                      child: LineChart(
+                        LineChartData(
+                          gridData: FlGridData(show: true),
+                          borderData: FlBorderData(show: false),
+                          titlesData: FlTitlesData(
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                              ),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 32,
                               ),
                             ),
                           ),
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: revenueData,
+                              isCurved: true,
+                              color: Colors.blueAccent,
+                              barWidth: 4,
+                              belowBarData: BarAreaData(
+                                show: true,
+                                color: Colors.blueAccent.withOpacity(0.2),
+                              ),
+                              dotData: FlDotData(show: false),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: _buildStatCard('Total Sales', ' 2412,500', Colors.green)),
+                Expanded(child: _buildStatCard('Products Sold', '320', Colors.orange)),
+                Expanded(child: _buildStatCard('Active Employees', '8', Colors.purple)),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: _buildStatCard('Stock Out', '5', Colors.red)),
+                Expanded(child: _buildStatCard('New Customers', '23', Colors.blue)),
+                Expanded(child: _buildStatCard('Pending Orders', '4', Colors.teal)),
+              ],
+            ),
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                if (userRole == 'admin')
+                  _buildNavigationCard(
+                    context,
+                    'Manage Employees',
+                    Icons.people,
+                    Colors.green,
+                    const EmployeeScreen(),
+                  ),
+                _buildNavigationCard(
+                  context,
+                  'Manage Stock',
+                  Icons.inventory,
+                  Colors.purple,
+                  const StockScreen(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blueAccent.withOpacity(0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Revenue',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 120,
+                    child: Center(
+                      child: Text(
+                        'Chart Placeholder',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -259,30 +328,38 @@ class _DashboardMainView extends StatelessWidget {
   }
 
   Widget _buildStatCard(String title, String value, Color color) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Container(
-        width: 150,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: color.withOpacity(0.1),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: TextStyle(fontSize: 16, color: color)),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: color,
+    return Expanded(
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: color.withOpacity(0.08),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 10),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 22,
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -363,20 +440,32 @@ class _AddProductScreenState extends State<_AddProductScreen> {
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(labelText: 'Product Name'),
-                  validator: (value) => value == null || value.isEmpty ? 'Enter product name' : null,
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? 'Enter product name'
+                              : null,
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: _quantityController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(labelText: 'Quantity'),
-                  validator: (value) => value == null || int.tryParse(value) == null ? 'Enter valid quantity' : null,
+                  validator:
+                      (value) =>
+                          value == null || int.tryParse(value) == null
+                              ? 'Enter valid quantity'
+                              : null,
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: _categoryController,
                   decoration: const InputDecoration(labelText: 'Category'),
-                  validator: (value) => value == null || value.isEmpty ? 'Enter category' : null,
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? 'Enter category'
+                              : null,
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -395,7 +484,11 @@ class _AddProductScreenState extends State<_AddProductScreen> {
                           "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
                     }
                   },
-                  validator: (value) => value == null || value.isEmpty ? 'Select expiry date' : null,
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? 'Select expiry date'
+                              : null,
                 ),
               ],
             ),
@@ -408,7 +501,10 @@ class _AddProductScreenState extends State<_AddProductScreen> {
             ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  final stockProvider = Provider.of<StockProvider>(context, listen: false);
+                  final stockProvider = Provider.of<StockProvider>(
+                    context,
+                    listen: false,
+                  );
                   final updatedStock = Stock(
                     name: _nameController.text.trim(),
                     quantity: int.parse(_quantityController.text),
@@ -459,9 +555,15 @@ class _AddProductScreenState extends State<_AddProductScreen> {
                         controller: _nameController,
                         decoration: InputDecoration(
                           labelText: 'Product Name',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        validator: (value) => value == null || value.isEmpty ? 'Enter product name' : null,
+                        validator:
+                            (value) =>
+                                value == null || value.isEmpty
+                                    ? 'Enter product name'
+                                    : null,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
@@ -469,18 +571,30 @@ class _AddProductScreenState extends State<_AddProductScreen> {
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: 'Quantity',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        validator: (value) => value == null || int.tryParse(value) == null ? 'Enter valid quantity' : null,
+                        validator:
+                            (value) =>
+                                value == null || int.tryParse(value) == null
+                                    ? 'Enter valid quantity'
+                                    : null,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _categoryController,
                         decoration: InputDecoration(
                           labelText: 'Category',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        validator: (value) => value == null || value.isEmpty ? 'Enter category' : null,
+                        validator:
+                            (value) =>
+                                value == null || value.isEmpty
+                                    ? 'Enter category'
+                                    : null,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
@@ -488,7 +602,9 @@ class _AddProductScreenState extends State<_AddProductScreen> {
                         readOnly: true,
                         decoration: InputDecoration(
                           labelText: 'Expiry Date',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           suffixIcon: const Icon(Icons.calendar_today),
                         ),
                         onTap: () async {
@@ -503,52 +619,83 @@ class _AddProductScreenState extends State<_AddProductScreen> {
                                 "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
                           }
                         },
-                        validator: (value) => value == null || value.isEmpty ? 'Select expiry date' : null,
+                        validator:
+                            (value) =>
+                                value == null || value.isEmpty
+                                    ? 'Select expiry date'
+                                    : null,
                       ),
                       const SizedBox(height: 24),
                       if (_error != null)
-                        Text(_error!, style: const TextStyle(color: Colors.red)),
+                        Text(
+                          _error!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _isLoading
-                              ? null
-                              : () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    setState(() => _isLoading = true);
-                                    try {
-                                      await stockProvider.addStock(
-                                        Stock(
-                                          name: _nameController.text.trim(),
-                                          quantity: int.parse(_quantityController.text),
-                                          category: _categoryController.text.trim(),
-                                          expiryDate: _expiryDateController.text.trim(),
-                                        ),
-                                      );
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Product added successfully!'), backgroundColor: Colors.green),
-                                      );
-                                      _formKey.currentState!.reset();
-                                      _nameController.clear();
-                                      _quantityController.clear();
-                                      _categoryController.clear();
-                                      _expiryDateController.clear();
-                                      setState(() {});
-                                    } catch (e) {
-                                      setState(() => _error = 'Failed to add product');
-                                    } finally {
-                                      setState(() => _isLoading = false);
+                          onPressed:
+                              _isLoading
+                                  ? null
+                                  : () async {
+                                    if (_formKey.currentState!.validate()) {
+                                      setState(() => _isLoading = true);
+                                      try {
+                                        await stockProvider.addStock(
+                                          Stock(
+                                            name: _nameController.text.trim(),
+                                            quantity: int.parse(
+                                              _quantityController.text,
+                                            ),
+                                            category:
+                                                _categoryController.text.trim(),
+                                            expiryDate:
+                                                _expiryDateController.text
+                                                    .trim(),
+                                          ),
+                                        );
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Product added successfully!',
+                                            ),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                        _formKey.currentState!.reset();
+                                        _nameController.clear();
+                                        _quantityController.clear();
+                                        _categoryController.clear();
+                                        _expiryDateController.clear();
+                                        setState(() {});
+                                      } catch (e) {
+                                        setState(
+                                          () =>
+                                              _error = 'Failed to add product',
+                                        );
+                                      } finally {
+                                        setState(() => _isLoading = false);
+                                      }
                                     }
-                                  }
-                                },
+                                  },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          child: _isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text('Add Product', style: TextStyle(fontSize: 18)),
+                          child:
+                              _isLoading
+                                  ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                  : const Text(
+                                    'Add Product',
+                                    style: TextStyle(fontSize: 18),
+                                  ),
                         ),
                       ),
                     ],
@@ -559,7 +706,11 @@ class _AddProductScreenState extends State<_AddProductScreen> {
                 const SizedBox(height: 12),
                 const Text(
                   'All Products',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 ListView.builder(
@@ -572,12 +723,17 @@ class _AddProductScreenState extends State<_AddProductScreen> {
                       margin: const EdgeInsets.symmetric(vertical: 6),
                       child: ListTile(
                         title: Text(stock.name),
-                        subtitle: Text('Qty: ${stock.quantity} | Category: ${stock.category} | Exp: ${stock.expiryDate}'),
+                        subtitle: Text(
+                          'Qty: ${stock.quantity} | Category: ${stock.category} | Exp: ${stock.expiryDate}',
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.orange),
+                              icon: const Icon(
+                                Icons.edit,
+                                color: Colors.orange,
+                              ),
                               onPressed: () => _showEditDialog(stock, index),
                             ),
                             IconButton(

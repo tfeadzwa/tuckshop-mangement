@@ -17,6 +17,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final TextEditingController _dutyController = TextEditingController();
   bool _isLoading = false;
   String? _error;
 
@@ -38,6 +39,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         'username': _usernameController.text.trim(),
         'password': _passwordController.text,
         'role': 'employee',
+      });
+      // Insert into employees table as well
+      await db.insert('employees', {
+        'name': _usernameController.text.trim(),
+        'role': 'employee',
+        'duty': _dutyController.text.trim(),
       });
       if (!mounted) return;
       Navigator.pushReplacement(
@@ -182,6 +189,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               (value) =>
                                   value != _passwordController.text
                                       ? 'Passwords do not match'
+                                      : null,
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: _dutyController,
+                          decoration: InputDecoration(
+                            labelText:
+                                'Duty (e.g. sales, accountant, marketing specialist)',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: const Icon(Icons.work),
+                          ),
+                          validator:
+                              (value) =>
+                                  value == null || value.isEmpty
+                                      ? 'Enter your duty'
                                       : null,
                         ),
                         const SizedBox(height: 20),

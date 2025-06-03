@@ -50,6 +50,17 @@ class DatabaseHelper {
             role TEXT
           )
         ''');
+        db.execute('''
+          CREATE TABLE sales (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id INTEGER,
+            employee_id INTEGER,
+            quantity INTEGER,
+            sale_time TEXT,
+            FOREIGN KEY(product_id) REFERENCES stocks(id),
+            FOREIGN KEY(employee_id) REFERENCES employees(id)
+          )
+        ''');
         // Insert default admin
         db.insert('users', {
           'username': 'admin',
