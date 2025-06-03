@@ -179,149 +179,109 @@ class _DashboardMainView extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Revenue (This Week)',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 200,
-                      child: LineChart(
-                        LineChartData(
-                          gridData: FlGridData(show: true),
-                          borderData: FlBorderData(show: false),
-                          titlesData: FlTitlesData(
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 40,
-                              ),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 32,
-                              ),
-                            ),
-                          ),
-                          lineBarsData: [
-                            LineChartBarData(
-                              spots: revenueData,
-                              isCurved: true,
-                              color: Colors.blueAccent,
-                              barWidth: 4,
-                              belowBarData: BarAreaData(
-                                show: true,
-                                color: Colors.blueAccent.withOpacity(0.2),
-                              ),
-                              dotData: FlDotData(show: false),
-                            ),
-                          ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              Card(
+                elevation: 6,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Revenue (This Week)',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
                       ),
-                    ),
-                  ],
+                      SizedBox(
+                        height: 200,
+                        child: LineChart(
+                          LineChartData(
+                            gridData: FlGridData(show: true),
+                            borderData: FlBorderData(show: false),
+                            titlesData: FlTitlesData(
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 40,
+                                ),
+                              ),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 32,
+                                ),
+                              ),
+                            ),
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots: revenueData,
+                                isCurved: true,
+                                color: Colors.blueAccent,
+                                barWidth: 4,
+                                belowBarData: BarAreaData(
+                                  show: true,
+                                  color: Colors.blueAccent.withOpacity(0.2),
+                                ),
+                                dotData: FlDotData(show: false),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(child: _buildStatCard('Total Sales', ' 2412,500', Colors.green)),
-                Expanded(child: _buildStatCard('Products Sold', '320', Colors.orange)),
-                Expanded(child: _buildStatCard('Active Employees', '8', Colors.purple)),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(child: _buildStatCard('Stock Out', '5', Colors.red)),
-                Expanded(child: _buildStatCard('New Customers', '23', Colors.blue)),
-                Expanded(child: _buildStatCard('Pending Orders', '4', Colors.teal)),
-              ],
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                if (userRole == 'admin')
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(child: _buildStatCard('Total Sales', ' 2412,500', Colors.green)),
+                  Expanded(child: _buildStatCard('Products Sold', '320', Colors.orange)),
+                  Expanded(child: _buildStatCard('Active Employees', '8', Colors.purple)),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(child: _buildStatCard('Stock Out', '5', Colors.red)),
+                  Expanded(child: _buildStatCard('New Customers', '23', Colors.blue)),
+                  Expanded(child: _buildStatCard('Pending Orders', '4', Colors.teal)),
+                ],
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  if (userRole == 'admin')
+                    _buildNavigationCard(
+                      context,
+                      'Manage Employees',
+                      Icons.people,
+                      Colors.green,
+                      const EmployeeScreen(),
+                    ),
                   _buildNavigationCard(
                     context,
-                    'Manage Employees',
-                    Icons.people,
-                    Colors.green,
-                    const EmployeeScreen(),
-                  ),
-                _buildNavigationCard(
-                  context,
-                  'Manage Stock',
-                  Icons.inventory,
-                  Colors.purple,
-                  const StockScreen(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blueAccent.withOpacity(0.08),
-                    blurRadius: 16,
-                    offset: const Offset(0, 8),
+                    'Manage Stock',
+                    Icons.inventory,
+                    Colors.purple,
+                    const StockScreen(),
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Revenue',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 120,
-                    child: Center(
-                      child: Text(
-                        'Chart Placeholder',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
